@@ -5,10 +5,14 @@ import com.example.securityOAuthJWT.model.Role;
 import com.example.securityOAuthJWT.model.User;
 import com.example.securityOAuthJWT.repositories.RoleRepository;
 import com.example.securityOAuthJWT.repositories.UserRepository;
+import com.example.securityOAuthJWT.security.jwt.AuthEntryPointJwt;
+import com.example.securityOAuthJWT.security.jwt.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -16,6 +20,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import java.time.LocalDate;
@@ -30,10 +35,19 @@ import static org.springframework.security.config.Customizer.withDefaults;
         jsr250Enabled = true
 )
 public class SecurityConfig {
-//    @Autowired
+    //    @Autowired
 //    CustomLoggingFilter customLoggingFilter;
 //    @Autowired
 //    RequestValidationFilter requestValidationFilter;
+    @Autowired
+    private AuthEntryPointJwt unauthorizedHandler;
+
+    @Bean
+    public AuthTokenFilter authenticationJwtTokenFilter() {
+        return new AuthTokenFilter();
+    }
+//    @Autowired
+//    AuthTokenFilter authTokenFilter;
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -43,19 +57,29 @@ public class SecurityConfig {
         );
 
         http.authorizeHttpRequests((requests)
-                        -> requests
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/csrf-token").permitAll()
-                        .requestMatchers("/api/auth/public/**").permitAll()
-                        .requestMatchers("/oauth2/**").permitAll()
-                        .anyRequest().authenticated());
-
+                -> requests
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/csrf-token").permitAll()
+                .requestMatchers("/api/auth/public/**").permitAll()
+                .requestMatchers("/oauth2/**").permitAll()
+                .anyRequest().authenticated());
+        http.exceptionHandling(exception
+                -> exception.authenticationEntryPoint(unauthorizedHandler));
+        http.addFilterBefore(authenticationJwtTokenFilter(),
+                UsernamePasswordAuthenticationFilter.class);
 //        http.addFilterBefore(customLoggingFilter, UsernamePasswordAuthenticationFilter.class);
 //        http.addFilterAfter(requestValidationFilter, CustomLoggingFilter.class);
 //        http.formLogin(withDefaults());
         http.httpBasic(withDefaults());
         return http.build();
     }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -66,7 +90,7 @@ public class SecurityConfig {
     public CommandLineRunner initData(RoleRepository roleRepository,
                                       UserRepository userRepository,
                                       PasswordEncoder passwordEncoder
-                                      ) {
+    ) {
         return args -> {
             Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
                     .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_USER)));
