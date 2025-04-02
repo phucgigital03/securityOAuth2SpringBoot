@@ -161,4 +161,16 @@ public class AuthController {
         return (userDetails != null) ? userDetails.getUsername() : "";
     }
 
+    @PostMapping("/public/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+        try{
+            userService.generatePasswordResetToken(email);
+            return ResponseEntity.ok(new MessageResponse("Password reset email sent!"));
+        } catch (Exception e) {
+            System.out.println("Internal Server Email Error" + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Internal Server Error"));
+        }
+    }
+
 }

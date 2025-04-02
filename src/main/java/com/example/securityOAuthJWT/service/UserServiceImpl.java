@@ -2,17 +2,23 @@ package com.example.securityOAuthJWT.service;
 
 import com.example.securityOAuthJWT.dtos.UserDTO;
 import com.example.securityOAuthJWT.model.AppRole;
+import com.example.securityOAuthJWT.model.PasswordResetToken;
 import com.example.securityOAuthJWT.model.Role;
 import com.example.securityOAuthJWT.model.User;
+import com.example.securityOAuthJWT.repositories.PasswordResetTokenRepository;
 import com.example.securityOAuthJWT.repositories.RoleRepository;
 import com.example.securityOAuthJWT.repositories.UserRepository;
+import com.example.securityOAuthJWT.utils.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -28,6 +34,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     RoleRepository roleRepository;
+
+    @Autowired
+    PasswordResetTokenRepository passwordResetTokenRepository;
+
+    @Autowired
+    EmailService emailService;
 
 //    @Autowired
 //    PasswordResetTokenRepository passwordResetTokenRepository;
@@ -144,17 +156,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void generatePasswordResetToken(String email){
-//        User user = userRepository.findByEmail(email)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        String token = UUID.randomUUID().toString();
-//        Instant expiryDate = Instant.now().plus(24, ChronoUnit.HOURS);
-//        PasswordResetToken resetToken = new PasswordResetToken(token, expiryDate, user);
-//        passwordResetTokenRepository.save(resetToken);
-//
-//        String resetUrl = frontendUrl + "/reset-password?token=" + token;
-//        // Send email to user
-//        emailService.sendPasswordResetEmail(user.getEmail(), resetUrl);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String token = UUID.randomUUID().toString();
+        Instant expiryDate = Instant.now().plus(24, ChronoUnit.HOURS);
+        PasswordResetToken resetToken = new PasswordResetToken(token, expiryDate, user);
+        passwordResetTokenRepository.save(resetToken);
+
+        String resetUrl = frontendUrl + "/reset-password?token=" + token;
+        // Send email to user
+        emailService.sendPasswordResetEmail(user.getEmail(), resetUrl);
     }
 
 
