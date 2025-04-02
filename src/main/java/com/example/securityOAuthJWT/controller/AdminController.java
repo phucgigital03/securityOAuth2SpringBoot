@@ -20,7 +20,7 @@ public class AdminController {
     @Autowired
     UserService userService;
 
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/getusers")
     public ResponseEntity<List<User>> getAllUsers() {
         return new ResponseEntity<>(userService.getAllUsers(),
@@ -34,18 +34,19 @@ public class AdminController {
         return ResponseEntity.ok("User role updated");
     }
 
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    //    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/user/{id}")
     public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
-        try{
+        try {
             System.out.println("getUsers - Response");
             return new ResponseEntity<>(userService.getUserById(id),
                     HttpStatus.OK);
-        }catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
+    // new update
     @PutMapping("/update-lock-status")
     public ResponseEntity<String> updateAccountLockStatus(@RequestParam Long userId,
                                                           @RequestParam boolean lock) {
