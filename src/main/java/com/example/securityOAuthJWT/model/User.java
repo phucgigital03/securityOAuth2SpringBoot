@@ -30,7 +30,7 @@ public class User{
     private Long userId;
 
     @NotBlank
-    @Size(max = 20)
+    @Size(max = 100)
     @Column(name = "username")
     private String userName;
 

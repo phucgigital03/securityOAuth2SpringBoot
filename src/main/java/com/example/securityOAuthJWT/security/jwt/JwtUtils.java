@@ -42,6 +42,7 @@ public class JwtUtils {
         String roles = userDetails.getAuthorities().stream()
                 .map(authority -> authority.getAuthority())
                 .collect(Collectors.joining(","));
+        System.out.println("Roles when generateTokenFromUsername: " + roles);
         return Jwts.builder()
                 .subject(username)
                 .claim("roles", roles)
