@@ -3,6 +3,7 @@ package com.example.securityOAuthJWT.service;
 import com.example.securityOAuthJWT.dtos.UserDTO;
 import com.example.securityOAuthJWT.model.Role;
 import com.example.securityOAuthJWT.model.User;
+import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +37,7 @@ public interface UserService {
 
     User registerUser(User user);
 
-//    GoogleAuthenticatorKey generate2FASecret(Long userId);
+    GoogleAuthenticatorKey generate2FASecret(Long userId);
 
     boolean validate2FACode(Long userId, int code);
 

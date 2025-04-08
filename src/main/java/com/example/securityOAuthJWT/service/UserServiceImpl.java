@@ -9,6 +9,7 @@ import com.example.securityOAuthJWT.repositories.PasswordResetTokenRepository;
 import com.example.securityOAuthJWT.repositories.RoleRepository;
 import com.example.securityOAuthJWT.repositories.UserRepository;
 import com.example.securityOAuthJWT.utils.EmailService;
+import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,14 +42,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     EmailService emailService;
 
-//    @Autowired
-//    PasswordResetTokenRepository passwordResetTokenRepository;
 
-//    @Autowired
-//    EmailService emailService;
-
-//    @Autowired
-//    TotpService totpService;
+    @Autowired
+    TotpService totpService;
 
     @Override
     public void updateUserRole(Long userId, String roleName) {
@@ -201,22 +197,21 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
-//    @Override
-//    public GoogleAuthenticatorKey generate2FASecret(Long userId){
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//        GoogleAuthenticatorKey key = totpService.generateSecret();
-//        user.setTwoFactorSecret(key.getKey());
-//        userRepository.save(user);
-//        return key;
-//    }
+    @Override
+    public GoogleAuthenticatorKey generate2FASecret(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        GoogleAuthenticatorKey key = totpService.generateSecretKey();
+        user.setTwoFactorSecret(key.getKey());
+        userRepository.save(user);
+        return key;
+    }
 
     @Override
     public boolean validate2FACode(Long userId, int code){
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//        return totpService.verifyCode(user.getTwoFactorSecret(), code);
-        return false;
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return totpService.verifyQRCode(user.getTwoFactorSecret(), code);
     }
 
     @Override
