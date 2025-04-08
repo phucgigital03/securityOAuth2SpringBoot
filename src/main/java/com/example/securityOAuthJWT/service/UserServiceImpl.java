@@ -197,6 +197,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(user);
     }
 
+//  For 2FA authentication
     @Override
     public GoogleAuthenticatorKey generate2FASecret(Long userId){
         User user = userRepository.findById(userId)
@@ -229,6 +230,4 @@ public class UserServiceImpl implements UserService {
         user.setTwoFactorEnabled(false);
         userRepository.save(user);
     }
-
-
 }
