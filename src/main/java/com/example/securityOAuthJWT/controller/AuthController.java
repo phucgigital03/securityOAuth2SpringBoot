@@ -199,7 +199,6 @@ public class AuthController {
 //  *****If Attacker have username and password, and then they enable easily
 //  cause End-User verify code at login not working while calling /enable-2fa 2FASecret in DB
 //  have changed
-
     @PostMapping("/enable-2fa")
     public ResponseEntity<String> enable2FA() {
         Long userId = authUtil.loggedInUserId();

@@ -105,6 +105,7 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
                         newUser.setEmail(email);
                         newUser.setUserName(username);
                         newUser.setSignUpMethod(oAuth2AuthenticationToken.getAuthorizedClientRegistrationId());
+                        newUser.setPassword("1111"); // set default password if you actually need
                         userService.registerUser(newUser);
                         DefaultOAuth2User oauthUser = new DefaultOAuth2User(
                                 List.of(new SimpleGrantedAuthority(newUser.getRole().getRoleName().name())),
