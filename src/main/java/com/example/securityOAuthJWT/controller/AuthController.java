@@ -196,7 +196,9 @@ public class AuthController {
 //  2FA Authentication
 //  Enable and Disable 2FA that they are having problems
 //  *****If Attacker have username and password, and then they disable easily
+//  (let to disable 2FA, you have to enter "code" with "secret key" of each user)
 //  *****If Attacker have username and password, and then they enable easily
+//  (let to enable 2FA, you have to check status of "Enable" if true, don't be allowed to enable again)
 //  cause End-User verify code at login not working while calling /enable-2fa 2FASecret in DB
 //  have changed
     @PostMapping("/enable-2fa")

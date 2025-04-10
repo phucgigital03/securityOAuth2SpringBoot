@@ -202,9 +202,15 @@ public class UserServiceImpl implements UserService {
     public GoogleAuthenticatorKey generate2FASecret(Long userId){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        GoogleAuthenticatorKey key = totpService.generateSecretKey();
-        user.setTwoFactorSecret(key.getKey());
-        userRepository.save(user);
+        String secret2FAKeyDB = user.getTwoFactorSecret();
+        GoogleAuthenticatorKey key = null;
+        if(secret2FAKeyDB == null || secret2FAKeyDB.isEmpty()){
+            key = totpService.generateSecretKey();
+            user.setTwoFactorSecret(key.getKey());
+            userRepository.save(user);
+        }else{
+            key = new GoogleAuthenticatorKey.Builder(secret2FAKeyDB).build();
+        }
         return key;
     }
 
@@ -227,6 +233,7 @@ public class UserServiceImpl implements UserService {
     public void disable2FA(Long userId){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setTwoFactorSecret(null);
         user.setTwoFactorEnabled(false);
         userRepository.save(user);
     }
