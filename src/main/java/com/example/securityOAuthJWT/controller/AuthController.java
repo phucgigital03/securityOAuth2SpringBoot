@@ -196,18 +196,23 @@ public class AuthController {
 //  2FA Authentication
 //  Enable and Disable 2FA that they are having problems
 //  *****If Attacker have username and password, and then they disable easily
-//  (let to disable 2FA, you have to enter "code" with "secret key" of each user)
+//  (send email if you actually disable)
 //  *****If Attacker have username and password, and then they enable easily
 //  (let to enable 2FA, you have to check status of "Enable" if true, don't be allowed to enable again)
 //  cause End-User verify code at login not working while calling /enable-2fa 2FASecret in DB
 //  have changed
     @PostMapping("/enable-2fa")
     public ResponseEntity<String> enable2FA() {
-        Long userId = authUtil.loggedInUserId();
-        GoogleAuthenticatorKey secret = userService.generate2FASecret(userId);
-        String qrCodeUrl = totpService.getQRCodeUrl(secret,
-                userService.getUserById(userId).getUserName());
-        return ResponseEntity.ok(qrCodeUrl);
+        try{
+            Long userId = authUtil.loggedInUserId();
+            GoogleAuthenticatorKey secret = userService.generate2FASecret(userId);
+            String qrCodeUrl = totpService.getQRCodeUrl(secret,
+                    userService.getUserById(userId).getUserName());
+            return ResponseEntity.ok(qrCodeUrl);
+        }catch (Exception e){
+            System.out.println("Enable2FA Error: " + e.getMessage());
+            return ResponseEntity.status(400).body("Bad Request");
+        }
     }
 
     @PostMapping("/disable-2fa")
